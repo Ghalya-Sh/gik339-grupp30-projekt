@@ -1,0 +1,242 @@
+:root {
+  /* Prisnivå-färger (styr design på korten) */
+  --tier-cheap: #198754; /* grön */
+  --tier-ok: #0d6efd; /* blå */
+  --tier-expensive: #dc3545; /* röd */
+
+  /* Bakgrund */
+  --bg-1: #1a2440;
+  --bg-2: #24304f;
+  --bg-3: #1e3a3a;
+}
+
+body {
+  background: radial-gradient(
+      1200px 800px at 10% 10%,
+      rgba(13, 110, 253, 0.24),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 700px at 85% 20%,
+      rgba(32, 201, 151, 0.22),
+      transparent 55%
+    ),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+}
+
+.container {
+  /* Lite "lyft" mot mörk bakgrund */
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.text-secondary {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.card .text-secondary {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.shadow-strong {
+  /* Tydlig (inte mild) skugga */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 18px 42px rgba(0, 0, 0, 0.42), 0 0 28px rgba(255, 255, 255, 0.06) !important;
+}
+
+.shadow-strong:hover {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 22px 52px rgba(0, 0, 0, 0.48), 0 0 34px rgba(255, 255, 255, 0.08) !important;
+}
+
+.recipe-card {
+  border-left-width: 0.5rem !important;
+  border-radius: 0 !important; /* fyrkantiga hörn */
+}
+
+.recipe-card .card-body {
+  padding: 0.6rem;
+}
+
+.recipe-card .btn-group-sm > .btn {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+}
+
+.recipe-left {
+  min-width: 0; /* viktigt för att line-clamp/overflow ska funka i flex */
+  flex: 1 1 auto;
+}
+
+.recipe-actions {
+  flex: 0 0 auto;
+}
+
+.recipe-card-square {
+  /* Standard (>=1280px): rektangulära kort */
+  width: min(100%, 13rem);
+  height: 11rem;
+  overflow: hidden; /* förhindra att innehåll spränger kortet */
+}
+
+/* (Tidigare använde vi aspect-ratio för fyrkant. Nu är korten rektangulära igen.) */
+
+/* Centrera korten i sina grid-kolumner när de har fast maxbredd */
+.recipe-grid > .col {
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Responsive krav vid 1280px ---
+  <1280px: lista under formulär + kvadratiska kort bredvid varandra + mindre gap
+  >=1280px: rektanglar under varandra
+*/
+
+@media (max-width: 1279.98px) {
+  /* Lägg listan under formuläret (override bootstrap col-lg) */
+  .layout-main {
+    flex-direction: column !important;
+  }
+  .layout-main > section {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Mindre mellanrum mellan kort */
+  .recipe-grid {
+    --bs-gutter-x: 0.25rem;
+    --bs-gutter-y: 0.25rem;
+  }
+
+  /* 2 kort per rad (kvadrater bredvid varandra) */
+  .recipe-grid > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    justify-content: flex-start; /* börja från vänster, inte centrerat */
+  }
+
+  /* Kvadratiska kort under 1280px, behåll width */
+  .recipe-card-square {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (min-width: 575.98px) and (max-width: 1279.98px) {
+  /* 768–1279: inga scrollbars – gör korten mindre och låt dem ligga tight i en grid */
+  .recipe-grid {
+    display: grid;
+    /* Större kort + färre per rad => text syns bättre och korten "flyttar ner" */
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  /* Bootstrap .row/.col overrides */
+  .recipe-grid > .col {
+    max-width: none;
+    width: auto;
+    padding: 0; /* tight, aligna med rubriken */
+    display: block;
+  }
+
+  .recipe-card-square {
+    width: 100%;
+    max-width: none;
+    height: 8rem;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* <=575px: rektanglar under varandra (som >=1280-läget) */
+  .recipe-grid > .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+
+  .recipe-card-square {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: auto;
+    height: 5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* En kolumn: kort under varandra */
+  .recipe-grid > .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Säkerställ rektanglar över 1280px */
+  .recipe-card-square {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: auto;
+    height: 5rem;
+  }
+}
+
+.recipe-card-clickable {
+  cursor: pointer;
+}
+
+.recipe-card-clickable:hover {
+  outline: 2px solid rgba(13, 110, 253, 0.15);
+}
+
+.recipe-card-clickable .btn {
+  cursor: default;
+}
+
+/* Begränsa text så kvadratiska kort inte blir högre */
+.recipe-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.85rem;
+  line-height: 1.15;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.recipe-meta {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.recipe-hint {
+  font-size: 0.66rem;
+  line-height: 1.2;
+}
+
+.recipe-card[data-price-tier="cheap"] {
+  border-left-color: var(--tier-cheap) !important;
+}
+.recipe-card[data-price-tier="ok"] {
+  border-left-color: var(--tier-ok) !important;
+}
+.recipe-card[data-price-tier="expensive"] {
+  border-left-color: var(--tier-expensive) !important;
+}
+.recipe-card[data-price-tier="unknown"] {
+  border-left-color: #6c757d !important; /* grå fallback */
+}
