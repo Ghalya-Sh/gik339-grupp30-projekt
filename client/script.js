@@ -215,7 +215,9 @@ async function fetchAndRender() {
 
 //Rendera listan dynamiskt
 function renderList(items) {
-  if (!Array.isArray(items) || items.length === 0) {
+  if (!Array.isArray(items)) items = [];
+
+  if (items.length === 0) {
     listMount.innerHTML = `<p class="text-secondary">Inga maträtter ännu.</p>`;
     return;
   }
@@ -223,26 +225,48 @@ function renderList(items) {
   let html = `<div class="row g-3 recipe-grid">`;
 
   items.forEach((r) => {
-    const total = r.price * r.servings;
+    const name = r.name;
+    const price = Number(r.price);
+    const servings = Number(r.servings);
+    const total = price * servings;
+
     const tier = getTierFromTotal(total);
 
     html += `
       <div class="col">
-        <div class="card recipe-card shadow-strong"
+        <div class="card recipe-card recipe-card-square recipe-card-clickable shadow-strong"
              data-price-tier="${tier}"
              onclick="setCurrentRecipe(${r.id})">
-          <div class="card-body">
-            <strong>${escapeHtml(r.name)}</strong><br>
-            Pris ${r.price} kr · Antal ${r.servings} · Total ${total} kr
-            <div class="mt-2">
-              <button class="btn btn-sm btn-outline-secondary"
-                onclick="event.stopPropagation(); setCurrentRecipe(${r.id})">
-                Ändra
-              </button>
-              <button class="btn btn-sm btn-outline-danger"
-                onclick="event.stopPropagation(); deleteRecipe(${r.id})">
-                Ta bort
-              </button>
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex gap-2 align-items-start">
+              <div class="recipe-left">
+                <div class="recipe-title">${escapeHtml(name)}</div>
+                <div class="recipe-meta text-secondary">
+                  Pris ${price} kr • Antal ${servings} • Total ${total} kr
+                </div>
+                <div class="recipe-hint text-secondary mt-2">
+                  Klicka på kortet för att redigera.
+                </div>
+              </div>
+
+              <div class="recipe-actions">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button"
+                          class="btn btn-outline-secondary"
+                          onclick="event.stopPropagation(); setCurrentRecipe(${
+                            r.id
+                          })">
+                    Ändra
+                  </button>
+                  <button type="button"
+                          class="btn btn-outline-danger"
+                          onclick="event.stopPropagation(); deleteRecipe(${
+                            r.id
+                          })">
+                    Ta bort
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -4,5 +4,6 @@
   "editor.wordWrap": "wordWrapColumn",
   "html.format.wrapAttributes": "force-aligned",
   "editor.minimap.maxColumn": 80,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "liveServer.settings.port": 5501
 }
