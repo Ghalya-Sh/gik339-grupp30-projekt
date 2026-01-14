@@ -359,7 +359,7 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-//Gör funktionerna globala(används i onclick i renderad HTML)
+//Gör funktionerna globala (används i onclick i renderad HTML)
 window.setCurrentRecipe = setCurrentRecipe;
 window.deleteRecipe = deleteRecipe;
 
