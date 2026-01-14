@@ -1,8 +1,8 @@
-// API-URL till backend (Express)
-const API_URL = "http://localhost:3000/recipes"
+//API-URL till backend (Express)
+const API_URL = "http://localhost:3000/recipes";
 
-// Priser för varje maträtt
-// Texten måste matcha <select>-alternativen exakt
+//Priser för varje maträtt
+//Texten måste matcha <select>-alternativen exakt
 const MENU_PRICES = {
   "Spaghetti bolognese": 125,
   "Pasta carbonara": 129,
@@ -26,42 +26,42 @@ const MENU_PRICES = {
   Pannkakor: 95,
 };
 
-// Hämta formuläret och alla inputfält
-// IDs måste stämma överens med index.html
+//Hämta formuläret och alla inputfält
+//IDs måste stämma överens med index.html
 const recipeForm = document.getElementById("recipeForm");
-const nameEl = document.getElementById("name");             // select för maträtt
-const priceEl = document.getElementById("price");           // pris per styck (readonly)
-const servingsEl = document.getElementById("servings");     // antal
-const totalPriceEl = document.getElementById("totalPrice"); // totalpris (readonly)
-const editingIdEl = document.getElementById("editingId");   // dolt id vid redigering
+const nameEl = document.getElementById("name"); //select för maträtt
+const priceEl = document.getElementById("price"); //pris per styck (readonly)
+const servingsEl = document.getElementById("servings"); //antal
+const totalPriceEl = document.getElementById("totalPrice"); //totalpris (readonly)
+const editingIdEl = document.getElementById("editingId"); //dolt id vid redigering
 
 // Knappar i gränssnittet
-const btnResetForm = document.getElementById("btnResetForm");   // rensa formulär
-const btnRefresh = document.getElementById("btnRefresh");       // hämta lista igen
-const btnCancelEdit = document.getElementById("btnCancelEdit"); // avbryt redigering
+const btnResetForm = document.getElementById("btnResetForm"); //rensa formulär
+const btnRefresh = document.getElementById("btnRefresh"); //hämta lista igen
+const btnCancelEdit = document.getElementById("btnCancelEdit"); //avbryt redigering
 
 // Platser där innehåll renderas dynamiskt
-const listMount = document.getElementById("listMount");         // lista med maträtter
-const feedbackMount = document.getElementById("feedbackMount"); // fallback-feedback
+const listMount = document.getElementById("listMount"); //lista med maträtter
+const feedbackMount = document.getElementById("feedbackMount"); //fallback-feedback
 
-// Bootstrap feedback-modal
+//Bootstrap feedback-modal
 const feedbackText = document.getElementById("feedbackText");
 const feedbackModalEl = document.getElementById("feedbackModal");
 
-// Skapa en Bootstrap-modal om Bootstrap är laddat
+//Skapa en Bootstrap-modal om Bootstrap är laddat
 let feedbackModal = null;
 if (window.bootstrap && feedbackModalEl) {
-  // focus:false → vi hanterar fokus manuellt
+  //focus:false → vi hanterar fokus manuellt
   feedbackModal = bootstrap.Modal.getOrCreateInstance(feedbackModalEl, {
     focus: false,
   });
 }
 
-// Fokus-hantering för accessibility
-// Här sparas vilket element som hade fokus innan modalen öppnades
+//Fokus-hantering för accessibility
+//Här sparas vilket element som hade fokus innan modalen öppnades
 let lastFocusedBeforeFeedbackModal = null;
 
-// När modalen visas: flytta fokus till en knapp i modalen
+//När modalen visas: flytta fokus till en knapp i modalen
 if (feedbackModalEl) {
   feedbackModalEl.addEventListener("shown.bs.modal", () => {
     const focusTarget =
@@ -73,16 +73,16 @@ if (feedbackModalEl) {
     }
   });
 
-  // När modalen stängs: flytta fokus tillbaka ut till formuläret
+  //När modalen stängs: flytta fokus tillbaka ut till formuläret
   feedbackModalEl.addEventListener("hide.bs.modal", () => {
     const active = document.activeElement;
 
-    // Om fokus låg inne i modalen → ta bort det
+    //Om fokus låg inne i modalen, ta bort det
     if (active instanceof HTMLElement && feedbackModalEl.contains(active)) {
       active.blur();
     }
 
-    // Försök återställa fokus till tidigare element
+    //Försök återställa fokus till tidigare element
     const el =
       (lastFocusedBeforeFeedbackModal &&
         document.contains(lastFocusedBeforeFeedbackModal) &&
@@ -95,60 +95,60 @@ if (feedbackModalEl) {
   });
 }
 
-// När sidan laddas
+//När sidan laddas
 window.addEventListener("load", () => {
-  hookEvents();              // koppla alla event
-  updateCalculatedFields();  // sätt startvärden
-  fetchAndRender();          // hämta data från backend
+  hookEvents(); //koppla alla event
+  updateCalculatedFields(); //sätt startvärden
+  fetchAndRender(); //hämta data från backend
 });
 
-// Koppla eventlyssnare
+//Koppla eventlyssnare
 function hookEvents() {
-  // När användaren väljer maträtt → uppdatera pris
+  //När användaren väljer maträtt → uppdatera pris
   nameEl.addEventListener("change", updateCalculatedFields);
 
-  // När antal ändras → uppdatera totalpris
+  //När antal ändras → uppdatera totalpris
   servingsEl.addEventListener("input", updateCalculatedFields);
 
-  // Submit hanterar både CREATE och UPDATE
+  //Submit hanterar både CREATE och UPDATE
   recipeForm.addEventListener("submit", handleSubmit);
 
-  // Manuell uppdatering av listan
+  //Manuell uppdatering av listan
   btnRefresh?.addEventListener("click", fetchAndRender);
 
-  // Rensa formuläret helt
+  //Rensa formuläret helt
   btnResetForm?.addEventListener("click", () => {
     resetForm();
     showFeedback("Formuläret rensades.");
   });
 
-  // Avbryt redigeringsläge
+  //Avbryt redigeringsläge
   btnCancelEdit?.addEventListener("click", () => {
     resetForm();
     showFeedback("Redigering avbröts.");
   });
 }
 
-// Visa feedback till användaren
+//Visa feedback till användaren
 function showFeedback(message, type = "info") {
   // Sätt text i modalen
   if (feedbackText) {
     feedbackText.textContent = message || "Klart!";
   }
 
-  // Om modal finns → använd den
+  //Om modal finns → använd den
   if (feedbackModal) {
     // Spara fokus innan modalen öppnas
     const active = document.activeElement;
     lastFocusedBeforeFeedbackModal =
       active instanceof HTMLElement ? active : lastFocusedBeforeFeedbackModal;
 
-    // Visa modalen
+    //Visa modalen
     feedbackModal.show();
     return;
   }
 
-  // Fallback: visa alert direkt i sidan
+  //Fallback: visa alert direkt i sidan
   if (feedbackMount) {
     feedbackMount.innerHTML = `
       <div class="alert alert-${type === "error" ? "danger" : "primary"}">
@@ -159,16 +159,15 @@ function showFeedback(message, type = "info") {
   }
 }
 
-
-// Pris- och totalprislogik
-// Hämta pris för vald maträtt
+//Pris- och totalprislogik
+//Hämta pris för vald maträtt
 function getPriceForMenu(name) {
   return MENU_PRICES[name] ?? 0;
 }
 
-// Uppdatera pris och totalpris automatiskt
+//Uppdatera pris och totalpris automatiskt
 function updateCalculatedFields() {
-  const price = getPriceForMenu(nameEl.value); // pris per styck
+  const price = getPriceForMenu(nameEl.value); //pris per styck
   const servings = Number(servingsEl.value || 0);
   const total = price * servings;
 
@@ -178,14 +177,14 @@ function updateCalculatedFields() {
 
 // Prisnivå → används för färg i CSS
 function getTierFromTotal(total) {
-  if (!total || total <= 0) return "unknown";   // ingen data
-  if (total > 1500) return "expensive";         // röd
-  if (total <= 500) return "ok";                // blå
-  return "cheap";                               // grön
+  if (!total || total <= 0) return "unknown"; //ingen data
+  if (total > 1500) return "expensive"; //röd
+  if (total <= 500) return "ok"; //blå
+  return "cheap"; //grön
 }
 
-// Formulär-hantering
-// Återställ formuläret till startläge
+//Formulär-hantering
+//Återställ formuläret till startläge
 function resetForm() {
   recipeForm.reset();
   editingIdEl.value = "";
@@ -194,7 +193,7 @@ function resetForm() {
   btnCancelEdit?.classList.add("d-none");
 }
 
-// Visa/dölj redigeringsläge
+//Visa/dölj redigeringsläge
 function setEditMode(on) {
   if (!btnCancelEdit) return;
   on
@@ -202,20 +201,19 @@ function setEditMode(on) {
     : btnCancelEdit.classList.add("d-none");
 }
 
-
-// READ: hämta alla resurser
+//READ: hämta alla resurser
 async function fetchAndRender() {
   try {
-    const r = await fetch(API_URL); // GET /recipes
+    const r = await fetch(API_URL); //GET /recipes
     if (!r.ok) throw new Error();
     const items = await r.json();
-    renderList(items);              // rendera i DOM
+    renderList(items); //rendera i DOM
   } catch {
     showFeedback("Kunde inte hämta data från servern.", "error");
   }
 }
 
-// Rendera listan dynamiskt
+//Rendera listan dynamiskt
 function renderList(items) {
   if (!Array.isArray(items) || items.length === 0) {
     listMount.innerHTML = `<p class="text-secondary">Inga maträtter ännu.</p>`;
@@ -256,7 +254,7 @@ function renderList(items) {
   listMount.innerHTML = html;
 }
 
-// READ ONE: fyll formuläret för redigering
+//EAD ONE: fyll formuläret för redigering
 async function setCurrentRecipe(id) {
   try {
     const r = await fetch(`${API_URL}/${id}`);
@@ -276,7 +274,7 @@ async function setCurrentRecipe(id) {
   }
 }
 
-// DELETE: ta bort resurs
+//DELETE: ta bort resurs
 async function deleteRecipe(id) {
   try {
     const r = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
@@ -290,7 +288,7 @@ async function deleteRecipe(id) {
   }
 }
 
-// CREATE / UPDATE: spara formulär
+//CREATE / UPDATE: spara formulär
 async function handleSubmit(e) {
   e.preventDefault();
 
@@ -298,7 +296,7 @@ async function handleSubmit(e) {
   const price = getPriceForMenu(name);
   const servings = Number(servingsEl.value);
 
-  // Enkel validering
+  //Enkel validering
   if (!name || !servings || !price) {
     showFeedback("Kontrollera formuläret.", "error");
     return;
@@ -327,7 +325,7 @@ async function handleSubmit(e) {
   }
 }
 
-// Hjälpfunktion: skydda mot XSS
+//Hjälpfunktion: skydda mot XSS
 function escapeHtml(str) {
   return String(str)
     .replaceAll("&", "&amp;")
@@ -337,6 +335,11 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-// Gör funktionerna globala (används i onclick i renderad HTML)
+//Gör funktionerna globala (används i onclick i renderad HTML)
 window.setCurrentRecipe = setCurrentRecipe;
 window.deleteRecipe = deleteRecipe;
+
+/*
+Hjälpmedel vi använde:
+Vi tog hjälp av kursmaterialet, MDN Web Docs, Stack Overflow, och ibland AI för att förklara felmeddelanden och debugging. Trots felmeddelanden och hinder så känner vi att vi har lärt oss och förstår koden.
+*/
